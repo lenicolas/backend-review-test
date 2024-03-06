@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\EventInput;
-use App\Repository\ReadEventRepository;
+use App\Repository\ReadEventRepositoryInterface;
 use App\Repository\WriteEventRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,12 +15,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class EventController
 {
     private WriteEventRepository $writeEventRepository;
-    private ReadEventRepository $readEventRepository;
+    private ReadEventRepositoryInterface $readEventRepository;
     private SerializerInterface $serializer;
 
     public function __construct(
         WriteEventRepository $writeEventRepository,
-        ReadEventRepository $readEventRepository,
+        ReadEventRepositoryInterface $readEventRepository,
         SerializerInterface $serializer
     ) {
         $this->writeEventRepository = $writeEventRepository;

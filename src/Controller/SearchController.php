@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dto\SearchInput;
 use App\Repository\ReadEventRepository;
+use App\Repository\ReadEventRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,11 +13,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class SearchController
 {
-    private ReadEventRepository $repository;
+    private ReadEventRepositoryInterface $repository;
     private SerializerInterface $serializer;
 
     public function __construct(
-        ReadEventRepository $repository,
+        ReadEventRepositoryInterface $repository,
         SerializerInterface  $serializer
     ) {
         $this->repository = $repository;
@@ -32,18 +33,22 @@ class SearchController
 
         $countByType = $this->repository->countByType($searchInput);
 
-        $data = [
-            'meta' => [
-                'totalEvents' => $this->repository->countAll($searchInput),
-                'totalPullRequests' => $countByType['pullRequest'] ?? 0,
-                'totalCommits' => $countByType['commit'] ?? 0,
-                'totalComments' => $countByType['comment'] ?? 0,
-            ],
-            'data' => [
-                'events' => $this->repository->getLatest($searchInput),
-                'stats' => $this->repository->statsByTypePerHour($searchInput)
-            ]
-        ];
+        $data = [];
+
+        if (count($countByType) > 0) {
+            $data = [
+                'meta' => [
+                    'totalEvents' => $this->repository->countAll($searchInput),
+                    'totalPullRequests' => $countByType['pullRequest'] ?? 0,
+                    'totalCommits' => $countByType['commit'] ?? 0,
+                    'totalComments' => $countByType['comment'] ?? 0,
+                ],
+                'data' => [
+                    'events' => $this->repository->getLatest($searchInput),
+                    'stats' => $this->repository->statsByTypePerHour($searchInput)
+                ]
+            ];
+        }
 
         return new JsonResponse($data);
     }
