@@ -2,15 +2,13 @@
 
 namespace App\Dto;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 class SearchInput
 {
-    /**
-     * @var \DateTimeImmutable
-     */
-    public $date;
+    #[Assert\NotBlank]
+    public \DateTimeImmutable $date;
 
-    /**
-     * @var string
-     */
-    public $keyword;
+    #[Assert\NotBlank]
+    public string $keyword;
 }

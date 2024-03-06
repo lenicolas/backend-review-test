@@ -8,8 +8,10 @@ use App\Repository\ReadEventRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SearchController
 {
@@ -27,9 +29,15 @@ class SearchController
     /**
      * @Route(path="/api/search", name="api_search", methods={"GET"})
      */
-    public function searchCommits(Request $request): JsonResponse
+    public function searchCommits(Request $request, ValidatorInterface $validator): JsonResponse
     {
         $searchInput = $this->serializer->denormalize($request->query->all(), SearchInput::class);
+        $errors = $validator->validate($searchInput);
+
+        if (count($errors) > 0) {
+            $errorsString = (string) $errors;
+            return new JsonResponse($errorsString, 422);
+        }
 
         $countByType = $this->repository->countByType($searchInput);
 
