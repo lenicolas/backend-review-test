@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\EventInput;
 use App\Repository\ReadEventRepositoryInterface;
 use App\Repository\WriteEventRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class EventController
+class EventController extends AbstractController
 {
     private WriteEventRepository $writeEventRepository;
     private ReadEventRepositoryInterface $readEventRepository;
