@@ -24,6 +24,7 @@ class Actor
     public string $url;
 
     #[ORM\Column(type: 'string')]
+    #[Assert\Url]
     public string $avatarUrl;
 
     public function __construct(int $id, string $login, string $url, string $avatarUrl)

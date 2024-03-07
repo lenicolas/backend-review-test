@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 #[ORM\Table(name: 'event')]
 #[ORM\Index(
     columns: ['type'],
@@ -20,6 +22,7 @@ class Event
     private int $id;
 
     #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank]
     private string $type;
 
     #[ORM\Column(type: 'integer')]
@@ -40,9 +43,11 @@ class Event
     private array $payload;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: false)]
+    #[Assert\DateTime]
     private \DateTimeImmutable $createAt;
 
     #[ORM\Column(type: 'text', nullable: false)]
+    #[Assert\NotBlank]
     private ?string $comment;
 
     /**

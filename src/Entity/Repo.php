@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'repo')]
 #[ORM\Entity]
@@ -16,9 +17,11 @@ class Repo
     private int $id;
 
     #[ORM\Column(type: 'string')]
+    #[Assert\NotBlank]
     public string $name;
 
     #[ORM\Column(type: 'string')]
+    #[Assert\Url]
     public string $url;
 
     public function __construct(int $id, string $name, string $url)
