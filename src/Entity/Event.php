@@ -19,17 +19,17 @@ class Event
     #[ORM\GeneratedValue('NONE')]
     private int $id;
 
-    #[ORM\Column(type: 'string', nullable: false, enumType: EventType::class)]
+    #[ORM\Column(type: 'string', nullable: false)]
     private string $type;
 
     #[ORM\Column(type: 'string')]
     private int $count = 1;
 
-    #[ORM\ManyToOne(targetEntity: Actor::class)]
+    #[ORM\ManyToOne(targetEntity: Actor::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'actor_id', referencedColumnName: 'id')]
     private Actor $actor;
 
-    #[ORM\ManyToOne(targetEntity: Repo::class)]
+    #[ORM\ManyToOne(targetEntity: Repo::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'repo_id', referencedColumnName: 'id')]
     private Repo $repo;
 

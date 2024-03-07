@@ -21,6 +21,8 @@ class EventType extends AbstractEnumType
         self::PULL_REQUEST => 'Pull Request',
         self::PUSH_EVENT => 'Push Event',
         self::PULL_REQUEST_EVENT => 'Push Event',
+        self::ISSUE_COMMENT_EVENT => 'Issue Comment Event',
+        self::COMMIT_COMMENT_EVENT => 'Commit Comment Event',
     ];
 
     /**
