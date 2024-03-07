@@ -93,9 +93,11 @@ class GitHubEventsImporterServiceTest extends TestCase
                ->method('gzOpen')
                ->with('data://text/plain;base64,' . base64_encode($eventJsonData))
                ->willReturn($handle);
+
         $gzFile->expects(self::any())
             ->method('gzEof')
-            ->with($handle);
+            ->with($handle)
+            ->willReturnOnConsecutiveCalls(true, false);
 
         $gzFile->expects(self::any())
             ->method('gzGets')
