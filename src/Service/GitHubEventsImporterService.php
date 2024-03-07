@@ -36,7 +36,7 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
         $filename = 'https://data.gharchive.org/'.$dateTime.'.json.gz';
         $jsonData = $this->getFileData($filename);
         $handle = $this->openFile($jsonData);
-        while (!$this->isEndOfFile($handle)) {
+        while (false !== $this->isEndOfFile($handle)) {
             try {
                 $line = $this->readLine($handle);
                 $this->processEvent($line);
