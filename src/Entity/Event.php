@@ -22,7 +22,7 @@ class Event
     #[ORM\Column(type: 'string', nullable: false)]
     private string $type;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'integer')]
     private int $count = 1;
 
     #[ORM\ManyToOne(targetEntity: Actor::class, cascade: ['persist'])]
