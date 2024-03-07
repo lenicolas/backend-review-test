@@ -24,7 +24,7 @@ class ReadEventRepository implements ReadEventRepositoryInterface
 SQL;
 
         return (int) $this->connection->fetchOne($sql, [
-            'date' => $searchInput->date->format('Y-m-d')
+            'date' => $searchInput->date->format('Y-m-d'),
         ]);
     }
 
@@ -39,7 +39,7 @@ SQL;
 SQL;
 
         return $this->connection->fetchAllKeyValue($sql, [
-            'date' => $searchInput->date->format('Y-m-d')
+            'date' => $searchInput->date->format('Y-m-d'),
         ]);
     }
 
@@ -54,7 +54,7 @@ SQL;
 SQL;
 
         $stats = $this->connection->fetchAllAssociative($sql, [
-            'date' => $searchInput->date->format('Y-m-d')
+            'date' => $searchInput->date->format('Y-m-d'),
         ]);
 
         $data = array_fill(0, 24, ['commit' => 0, 'pullRequest' => 0, 'comment' => 0]);
@@ -79,7 +79,7 @@ SQL;
             'date' => $searchInput->date->format('Y-m-d'),
         ]);
 
-        $result = array_map(static function($item) {
+        $result = array_map(static function ($item) {
             $item['repo'] = json_decode($item['repo'], true);
 
             return $item;
@@ -97,7 +97,7 @@ SQL;
         SQL;
 
         $result = $this->connection->fetchOne($sql, [
-            'id' => $id
+            'id' => $id,
         ]);
 
         return (bool) $result;

@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+
 /**
  * @ORM\Entity()
+ *
  * @ORM\Table(name="actor")
  */
 class Actor
 {
     /**
      * @ORM\Id
+     *
      * @ORM\Column(type="bigint")
+     *
      * @ORM\GeneratedValue(strategy="NONE")
      */
     public int $id;
@@ -70,5 +74,4 @@ class Actor
             $data['avatar_url']
         );
     }
-
 }

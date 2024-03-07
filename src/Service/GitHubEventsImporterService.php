@@ -24,8 +24,7 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
         EntityManagerInterface $entityManager,
         FileStreamInterface $fileStream,
         GzFileStreamInterface $gzFileStream
-    )
-    {
+    ) {
         $this->entityManager = $entityManager;
         $this->fileStream = $fileStream;
         $this->gzFileStream = $gzFileStream;
@@ -33,14 +32,14 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
 
     public function importEvents(string $date, string $hour): void
     {
-        $dateTime = $date . '-' . $hour;
-        $filename = 'https://data.gharchive.org/' . $dateTime . '.json.gz';
+        $dateTime = $date.'-'.$hour;
+        $filename = 'https://data.gharchive.org/'.$dateTime.'.json.gz';
         $jsonData = $this->fileStream->getFileContents($filename);
 
-        $handle = $this->gzFileStream->gzOpen('data://text/plain;base64,' . base64_encode($jsonData), 'rb');
+        $handle = $this->gzFileStream->gzOpen('data://text/plain;base64,'.base64_encode($jsonData), 'rb');
 
         if (!$handle) {
-            throw new \RuntimeException('Error opening the file: ' . $filename);
+            throw new \RuntimeException('Error opening the file: '.$filename);
         }
 
         while (false !== $this->gzFileStream->gzEof($handle)) {
@@ -52,11 +51,11 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
                     $this->entityManager->flush();
                 }
             } catch (\InvalidArgumentException $invalidArgumentException) {
-                throw new \InvalidArgumentException('Error invalid argument ' . $invalidArgumentException->getMessage());
+                throw new \InvalidArgumentException('Error invalid argument '.$invalidArgumentException->getMessage());
             } catch (\Exception $exception) {
-                throw new \Exception('Error processing event: ' . $exception->getMessage());
+                throw new \Exception('Error processing event: '.$exception->getMessage());
             } catch (ExceptionInterface $e) {
-                throw new \Exception('Error deserializing event: ' . $e->getMessage());
+                throw new \Exception('Error deserializing event: '.$e->getMessage());
             }
         }
 
@@ -70,6 +69,7 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
     {
         $normalizers = [new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())];
         $serializer = new Serializer($normalizers, ['json' => new JsonEncoder()]);
+
         return $serializer->denormalize($data, Event::class);
     }
 }

@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Service\GitHubEventsImporterServiceInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * This command must import GitHub events.
  * You can add the parameters and code you want in this command to meet the need.
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ImportGitHubEventsCommand extends Command
 {
     private GitHubEventsImporterServiceInterface $eventsImporter;
+
     public function __construct(GitHubEventsImporterServiceInterface $eventsImporter)
     {
         parent::__construct();
@@ -41,9 +43,11 @@ class ImportGitHubEventsCommand extends Command
         try {
             $this->eventsImporter->importEvents($date, $hour);
             $output->writeln('Command Import GH events executed successfully.');
+
             return Command::SUCCESS;
         } catch (\Exception $exception) {
-            $output->writeln('Error executing command import-github-events: ' . $exception->getMessage());
+            $output->writeln('Error executing command import-github-events: '.$exception->getMessage());
+
             return Command::FAILURE;
         }
     }
