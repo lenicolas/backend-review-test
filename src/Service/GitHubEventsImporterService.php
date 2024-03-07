@@ -41,11 +41,11 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
                 $line = $this->readLine($handle);
                 $this->processEvent($line);
             } catch (\InvalidArgumentException $invalidArgumentException) {
-                throw new \InvalidArgumentException('Error invalid argument '.$invalidArgumentException->getMessage());
+                // log type not manage
             } catch (\Exception $exception) {
-                throw new \Exception('Error processing event: '.$exception->getMessage());
+                // log Error processing event: '.$exception->getMessage());
             } catch (ExceptionInterface $e) {
-                throw new \Exception('Error deserializing event: '.$e->getMessage());
+                // log Error deserializing event
             }
         }
 
@@ -90,7 +90,7 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
      */
     private function readLine($handle): string
     {
-        $line = $this->gzFileStream->gzGets($handle, null);
+        $line = $this->gzFileStream->gzGets($handle, 4000);
 
         if (false === $line) {
             throw new \RuntimeException('Error reading line');
@@ -108,7 +108,6 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
 
         if (!empty($lineDecode)) {
             $event = $this->denormalizeEvent($lineDecode);
-
             if (!($event instanceof Event)) {
                 throw new \RuntimeException('Invalid event, cannot create event');
             }
