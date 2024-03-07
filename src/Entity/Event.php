@@ -59,16 +59,16 @@ class Event
      */
     private ?string $comment;
 
-    public function __construct(int $id, string $type, Actor $actor, Repo $repo, array $payload, \DateTimeImmutable $createAt, ?string $comment)
+    public function __construct(int $id, string $type, Actor $actor, Repo $repo, array $payload, \DateTimeImmutable $createdAt, ?string $comment)
     {
         $this->id = $id;
         EventType::assertValidChoice($type);
-        $this->type = $type;
+        $this->type = EventType::getEventTypeGitHubArchives()[$type];
         $this->actor = $actor;
         $this->repo = $repo;
         $this->payload = $payload;
-        $this->createAt = $createAt;
-        $this->comment = $comment;
+        $this->createAt = $createdAt;
+        $this->comment = $comment ?? '';
 
         if ($type === EventType::COMMIT) {
             $this->count = $payload['size'] ?? 1;

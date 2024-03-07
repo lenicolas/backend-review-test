@@ -15,4 +15,14 @@ class GzFileStream implements GzFileStreamInterface
     {
         return gzclose($stream);
     }
+
+    public function gzEof($stream): bool
+    {
+        return gzeof($stream);
+    }
+
+    public function gzGets($stream, ?int $length = null): string|false
+    {
+        return gzgets($stream, $length);
+    }
 }
