@@ -33,6 +33,7 @@
         "liip/functional-test-bundle": "^4.6",
         "liip/test-fixtures-bundle": "^2.4",
         "mikey179/vfsstream": "^1.6",
+        "phpmd/phpmd": "^2.15",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5",
         "squizlabs/php_codesniffer": "*",

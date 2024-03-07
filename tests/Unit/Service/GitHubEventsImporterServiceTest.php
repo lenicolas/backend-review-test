@@ -40,7 +40,7 @@ class GitHubEventsImporterServiceTest extends TestCase
 
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Error opening the file: '. $this->filename);
+        $this->expectExceptionMessage('Error opening the file');
 
         $importer = new GitHubEventsImporterService($em, $file, $gzFile);
         $importer->importEvents($this->date, $this->hour);

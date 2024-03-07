@@ -50,6 +50,7 @@ class Event
 
     /**
      * @ORM\Column(type="json", nullable=false, options={"jsonb": true})
+     *
      * @var \Iterator[]
      */
     private array $payload;
@@ -65,13 +66,7 @@ class Event
     private ?string $comment;
 
     /**
-     * @param int $id
-     * @param string $type
-     * @param Actor $actor
-     * @param Repo $repo
      * @param array<\Iterator> $payload
-     * @param \DateTimeImmutable $createdAt
-     * @param string|null $comment
      */
     public function __construct(int $id, string $type, Actor $actor, Repo $repo, array $payload, \DateTimeImmutable $createdAt, ?string $comment)
     {

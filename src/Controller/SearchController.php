@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -25,9 +24,7 @@ class SearchController
         $this->serializer = $serializer;
     }
 
-    /**
-     * @Route(path="/api/search", name="api_search", methods={"GET"})
-     */
+    #[Route(path: '/api/search', name: 'api_search', methods: ['GET'])]
     public function searchCommits(Request $request, ValidatorInterface $validator): JsonResponse
     {
         $searchInput = $this->serializer->deserialize(
