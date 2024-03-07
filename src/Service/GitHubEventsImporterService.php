@@ -36,17 +36,28 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
         $filename = 'https://data.gharchive.org/'.$dateTime.'.json.gz';
         $jsonData = $this->fileStream->getFileContents($filename);
 
-        $handle = $this->gzFileStream->gzOpen('data://text/plain;base64,'.base64_encode($jsonData), 'rb');
+        if (false === $jsonData) {
+            throw new \RuntimeException('Error get file contents the file: '.$filename);
+        }
+
+        $handle = $this->gzFileStream->gzOpen('data://text/plain;base64,'.base64_encode((string)$jsonData), 'rb');
 
         if (!$handle) {
             throw new \RuntimeException('Error opening the file: '.$filename);
         }
 
         while (false !== $this->gzFileStream->gzEof($handle)) {
-            $line = json_decode($this->gzFileStream->gzGets($handle, null), true);
             try {
-                if (!empty($line)) {
-                    $event = $this->denormalizeEvent($line);
+                $line = $this->gzFileStream->gzGets($handle, null);
+                if (false === $line) {
+                    throw new \RuntimeException('Error read line');
+                }
+                $lineDecode = json_decode($line, true);
+                if (!empty($lineDecode)) {
+                    $event = $this->denormalizeEvent($lineDecode);
+                    if (!($event instanceof Event)) {
+                        throw new \RuntimeException('Invalid event, cannot create event');
+                    }
                     $this->entityManager->persist($event);
                     $this->entityManager->flush();
                 }
@@ -63,6 +74,8 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
     }
 
     /**
+     * @param array<\Iterator> $data
+     * @return Event|null
      * @throws ExceptionInterface
      */
     private function denormalizeEvent(array $data): ?Event

@@ -20,11 +20,19 @@ class EventType extends AbstractEnumType
         self::PULL_REQUEST_EVENT => 'Push Event',
     ];
 
+    /**
+     * @var array|string[]
+     */
     protected static array $eventTypeGitHubArchives = [
         self::PUSH_EVENT => self::COMMIT,
         self::PULL_REQUEST => self::PULL_REQUEST,
+        self::COMMIT => self::COMMIT,
+        self::COMMENT => self::COMMENT,
     ];
 
+    /**
+     * @return array|string[]
+     */
     public static function getEventTypeGitHubArchives(): array
     {
         return self::$eventTypeGitHubArchives;

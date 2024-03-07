@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -29,7 +30,11 @@ class SearchController
      */
     public function searchCommits(Request $request, ValidatorInterface $validator): JsonResponse
     {
-        $searchInput = $this->serializer->denormalize($request->query->all(), SearchInput::class);
+        $searchInput = $this->serializer->deserialize(
+            json_encode($request->query->all()),
+            SearchInput::class,
+            'json'
+        );
         $errors = $validator->validate($searchInput);
 
         if (count($errors) > 0) {
