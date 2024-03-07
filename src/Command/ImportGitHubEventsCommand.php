@@ -43,7 +43,7 @@ class ImportGitHubEventsCommand extends Command
             $output->writeln('Command Import GH events executed successfully.');
             return Command::SUCCESS;
         } catch (\Exception $exception) {
-            $output->writeln('Error executing command: ' . $exception->getMessage());
+            $output->writeln('Error executing command import-github-events: ' . $exception->getMessage());
             return Command::FAILURE;
         }
     }
