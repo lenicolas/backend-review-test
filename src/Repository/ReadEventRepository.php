@@ -3,59 +3,66 @@
 namespace App\Repository;
 
 use App\Dto\SearchInput;
-use Doctrine\DBAL\Connection;
+use App\Entity\Event;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 class ReadEventRepository implements ReadEventRepositoryInterface
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    private EntityManagerInterface $entityManager;
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->connection = $connection;
+        $this->entityManager = $entityManager;
     }
 
     public function countAll(SearchInput $searchInput): int
     {
-        $sql = <<<SQL
-        SELECT sum(count) as count
-        FROM event
-        WHERE date(create_at) = :date
-        AND payload::text like '%{$searchInput->keyword}%'
-SQL;
+        $queryBuilder = $this->entityManager->createQueryBuilder();
 
-        return (int) $this->connection->fetchOne($sql, [
-            'date' => $searchInput->date->format('Y-m-d'),
-        ]);
+        $queryBuilder->select('count(e.id)')
+            ->from(Event::class, 'e')
+            ->where('e.createAt LIKE :date')
+            ->andWhere('e.payload LIKE :keyword')
+            ->setParameter('date', $searchInput->date->format('Y-m-d'))
+            ->setParameter('keyword', '%' . $searchInput->keyword . '%');
+
+        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
     }
-
     public function countByType(SearchInput $searchInput): array
     {
-        $sql = <<<'SQL'
-            SELECT type, sum(count) as count
-            FROM event
-            WHERE date(create_at) = :date
-            AND payload::text like '%{$searchInput->keyword}%'
-            GROUP BY type
-SQL;
+        $queryBuilder = $this->entityManager->createQueryBuilder();
 
-        return $this->connection->fetchAllKeyValue($sql, [
-            'date' => $searchInput->date->format('Y-m-d'),
-        ]);
+        $queryBuilder->select('e.type, sum(e.count) as count')
+            ->from(Event::class, 'e')
+            ->where('e.createAt LIKE :date')
+            ->andWhere('e.payload LIKE :keyword')
+            ->groupBy('e.type')
+            ->setParameter('date', $searchInput->date->format('Y-m-d'))
+            ->setParameter('keyword', '%' . $searchInput->keyword . '%');
+
+        return $queryBuilder->getQuery()->getArrayResult();
     }
 
     public function statsByTypePerHour(SearchInput $searchInput): array
     {
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult('hour', 'hour');
+        $rsm->addScalarResult('type', 'type');
+        $rsm->addScalarResult('count', 'count');
+
         $sql = <<<SQL
             SELECT extract(hour from create_at) as hour, type, sum(count) as count
             FROM event
             WHERE date(create_at) = :date
-            AND payload::text like '%{$searchInput->keyword}%'
+            AND payload::text like :keyword
             GROUP BY TYPE, EXTRACT(hour from create_at)
 SQL;
 
-        $stats = $this->connection->fetchAllAssociative($sql, [
-            'date' => $searchInput->date->format('Y-m-d'),
-        ]);
+        $query = $this->entityManager->createNativeQuery($sql, $rsm);
+        $query->setParameter('date', $searchInput->date->format('Y-m-d'));
+        $query->setParameter('keyword', '%' . $searchInput->keyword . '%');
+
+        $stats = $query->getArrayResult();
 
         $data = array_fill(0, 24, ['commit' => 0, 'pullRequest' => 0, 'comment' => 0]);
 
@@ -68,38 +75,21 @@ SQL;
 
     public function getLatest(SearchInput $searchInput): array
     {
-        $sql = <<<SQL
-            SELECT type, repo_id
-            FROM event
-            WHERE date(create_at) = :date
-            AND payload::text like '%{$searchInput->keyword}%'
-SQL;
+        $queryBuilder = $this->entityManager->createQueryBuilder();
 
-        $result = $this->connection->fetchAllAssociative($sql, [
-            'date' => $searchInput->date->format('Y-m-d'),
-        ]);
+        $queryBuilder->select('e.type, e.repo')
+            ->from(Event::class, 'e')
+            ->where('e.createAt LIKE :date')
+            ->andWhere('e.payload LIKE :keyword')
+            ->setParameter('date', $searchInput->date->format('Y-m-d'))
+            ->setParameter('keyword', '%' . $searchInput->keyword . '%');
 
-        $result = array_map(static function ($item) {
-            $item['repo'] = json_decode($item['repo'], true);
-
-            return $item;
-        }, $result);
-
-        return $result;
+        return $queryBuilder->getQuery()->getArrayResult();
     }
 
     public function exist(int $id): bool
     {
-        $sql = <<<SQL
-            SELECT 1
-            FROM event
-            WHERE id = :id
-        SQL;
-
-        $result = $this->connection->fetchOne($sql, [
-            'id' => $id,
-        ]);
-
-        return (bool) $result;
+        $event = $this->entityManager->getRepository(Event::class)->find($id);
+        return $event !== null;
     }
 }

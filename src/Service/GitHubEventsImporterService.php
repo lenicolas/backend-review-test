@@ -5,40 +5,42 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Event;
-use App\Utils\FileStreamInterface;
-use App\Utils\GzFileStreamInterface;
+use App\Repository\ReadEventRepositoryInterface;
+use App\Utils\FileDataReaderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class GitHubEventsImporterService implements GitHubEventsImporterServiceInterface
 {
     private EntityManagerInterface $entityManager;
-    private FileStreamInterface $fileStream;
-    private GzFileStreamInterface $gzFileStream;
+    private FileDataReaderInterface $fileDataReader;
+    private ReadEventRepositoryInterface $readEventRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        FileStreamInterface $fileStream,
-        GzFileStreamInterface $gzFileStream
+        FileDataReaderInterface $fileDataReader,
+        ReadEventRepositoryInterface $readEventRepository
     ) {
         $this->entityManager = $entityManager;
-        $this->fileStream = $fileStream;
-        $this->gzFileStream = $gzFileStream;
+        $this->fileDataReader = $fileDataReader;
+        $this->readEventRepository = $readEventRepository;
     }
 
     public function importEvents(string $date, string $hour): void
     {
         $dateTime = $date.'-'.$hour;
         $filename = 'https://data.gharchive.org/'.$dateTime.'.json.gz';
-        $jsonData = $this->getFileData($filename);
-        $handle = $this->openFile($jsonData);
-        while (false !== $this->isEndOfFile($handle)) {
+        $jsonData = $this->fileDataReader->getFileData($filename);
+        $handle = $this->fileDataReader->openFile($jsonData);
+        while (false !== $this->fileDataReader->isEndOfFile($handle)) {
             try {
-                $line = $this->readLine($handle);
+                $line = $this->fileDataReader->readLine($handle);
                 $this->processEvent($line);
             } catch (\InvalidArgumentException $invalidArgumentException) {
                 // log type not manage
@@ -48,55 +50,6 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
                 // log Error deserializing event
             }
         }
-
-        $this->gzFileStream->gzClose($handle);
-    }
-
-    private function getFileData(string $filename): string
-    {
-        $jsonData = $this->fileStream->getFileContents($filename);
-
-        if (false === $jsonData) {
-            throw new \RuntimeException('Error getting file contents: '.$filename);
-        }
-
-        return (string) $jsonData;
-    }
-
-    /**
-     * @return resource
-     */
-    private function openFile(string $jsonData)
-    {
-        $handle = $this->gzFileStream->gzOpen('data://text/plain;base64,'.base64_encode($jsonData), 'rb');
-
-        if (!$handle) {
-            throw new \RuntimeException('Error opening the file');
-        }
-
-        return $handle;
-    }
-
-    /**
-     * @param resource $handle
-     */
-    private function isEndOfFile($handle): bool
-    {
-        return false === $this->gzFileStream->gzEof($handle);
-    }
-
-    /**
-     * @param resource $handle
-     */
-    private function readLine($handle): string
-    {
-        $line = $this->gzFileStream->gzGets($handle, 4000);
-
-        if (false === $line) {
-            throw new \RuntimeException('Error reading line');
-        }
-
-        return $line;
     }
 
     /**
@@ -112,6 +65,10 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
                 throw new \RuntimeException('Invalid event, cannot create event');
             }
 
+            if ($this->readEventRepository->exist($event->getId())) {
+                throw new InvalidArgumentException('Event already exist');
+            }
+
             $this->entityManager->persist($event);
             $this->entityManager->flush();
         }
@@ -124,9 +81,10 @@ class GitHubEventsImporterService implements GitHubEventsImporterServiceInterfac
      */
     private function denormalizeEvent(array $data): ?Event
     {
-        $normalizers = [new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())];
+        $normalizers = [new DateTimeNormalizer(), new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter())];
         $serializer = new Serializer($normalizers, ['json' => new JsonEncoder()]);
 
         return $serializer->denormalize($data, Event::class);
     }
+
 }

@@ -3,25 +3,25 @@
 namespace App\Repository;
 
 use App\Dto\EventInput;
-use Doctrine\DBAL\Connection;
+use App\Entity\Event;
+use Doctrine\ORM\EntityManagerInterface;
 
 class WriteEventRepository implements WriteEventRepositoryInterface
 {
-    private Connection $connection;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(Connection $connection)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->connection = $connection;
+        $this->entityManager = $entityManager;
     }
 
-    public function update(EventInput $authorInput, int $id): void
+    public function update(EventInput $eventInput, int $id): void
     {
-        $sql = <<<SQL
-        UPDATE event
-        SET comment = :comment
-        WHERE id = :id
-SQL;
+        $event = $this->entityManager->getRepository(Event::class)->find($id);
 
-        $this->connection->executeQuery($sql, ['id' => $id, 'comment' => $authorInput->comment]);
+        if ($event) {
+            $event->setComment($eventInput->comment);
+            $this->entityManager->flush();
+        }
     }
 }

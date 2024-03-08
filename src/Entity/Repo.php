@@ -18,11 +18,11 @@ class Repo
 
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank]
-    public string $name;
+    private string $name;
 
     #[ORM\Column(type: 'string')]
     #[Assert\Url]
-    public string $url;
+    private string $url;
 
     public function __construct(int $id, string $name, string $url)
     {

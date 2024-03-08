@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'event')]
@@ -64,7 +63,7 @@ class Event
         $this->createAt = $createdAt;
         $this->comment = $comment ?? '';
 
-        if (EventType::COMMIT === $type) {
+        if (EventType::COMMIT === $this->type) {
             $this->count = $payload['size'] ?? 1;
         }
     }

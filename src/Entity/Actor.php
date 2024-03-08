@@ -14,18 +14,18 @@ class Actor
     #[ORM\Id]
     #[ORM\Column(type: 'bigint')]
     #[ORM\GeneratedValue('NONE')]
-    public int $id;
+    private int $id;
 
     #[ORM\Column(type: 'string')]
-    public string $login;
-
-    #[ORM\Column(type: 'string')]
-    #[Assert\Url]
-    public string $url;
+    private string $login;
 
     #[ORM\Column(type: 'string')]
     #[Assert\Url]
-    public string $avatarUrl;
+    private string $url;
+
+    #[ORM\Column(type: 'string')]
+    #[Assert\Url]
+    private string $avatarUrl;
 
     public function __construct(int $id, string $login, string $url, string $avatarUrl)
     {
