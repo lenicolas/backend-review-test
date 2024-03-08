@@ -29,10 +29,10 @@ class Actor
 
     public function __construct(int $id, string $login, string $url, string $avatarUrl)
     {
-        $this->id = $id;
-        $this->login = $login;
-        $this->url = $url;
-        $this->avatarUrl = $avatarUrl;
+        $this->setId($id);
+        $this->setLogin($login);
+        $this->setUrl($url);
+        $this->setAvatarUrl($avatarUrl);
     }
 
     public function getId(): int
@@ -54,4 +54,30 @@ class Actor
     {
         return $this->avatarUrl;
     }
+
+    public function setId(int $id): Actor
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setLogin(string $login): Actor
+    {
+        $this->login = $login;
+        return $this;
+    }
+
+    public function setUrl(string $url): Actor
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    public function setAvatarUrl(string $avatarUrl): Actor
+    {
+        $this->avatarUrl = $avatarUrl;
+        return $this;
+    }
+
+
 }

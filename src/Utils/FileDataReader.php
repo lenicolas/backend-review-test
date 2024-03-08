@@ -45,7 +45,7 @@ class FileDataReader implements FileDataReaderInterface
      */
     public function isEndOfFile($handle): bool
     {
-        return false === $this->gzFileStream->gzEof($handle);
+        return true === $this->gzFileStream->gzEof($handle);
     }
 
     /**

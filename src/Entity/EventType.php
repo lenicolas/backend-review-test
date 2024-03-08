@@ -30,7 +30,7 @@ class EventType extends AbstractEnumType
      */
     protected static array $eventTypeGitHubArchives = [
         self::PUSH_EVENT => self::COMMIT,
-        self::PULL_REQUEST => self::PULL_REQUEST,
+        self::PULL_REQUEST_EVENT => self::PULL_REQUEST,
         self::COMMIT => self::COMMIT,
         self::COMMENT => self::COMMENT,
         self::PULL_REQUEST_EVENT_REVIEW_COMMENT_EVENT => self::COMMENT,

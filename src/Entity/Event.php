@@ -54,18 +54,13 @@ class Event
      */
     public function __construct(int $id, string $type, Actor $actor, Repo $repo, array $payload, \DateTimeImmutable $createdAt, ?string $comment)
     {
-        $this->id = $id;
-        EventType::assertValidChoice($type);
-        $this->type = EventType::getEventTypeGitHubArchives()[$type];
-        $this->actor = $actor;
-        $this->repo = $repo;
-        $this->payload = $payload;
-        $this->createAt = $createdAt;
-        $this->comment = $comment ?? '';
-
-        if (EventType::COMMIT === $this->type) {
-            $this->count = $payload['size'] ?? 1;
-        }
+        $this->setId($id);
+        $this->setType($type);
+        $this->setActor($actor);
+        $this->setRepo($repo);
+        $this->setPayload($payload);
+        $this->setCreateAt($createdAt);
+        $this->setComment($comment);
     }
 
     public function getId(): int
@@ -109,5 +104,58 @@ class Event
     public function getComment(): ?string
     {
         return $this->comment;
+    }
+
+    public function setId(int $id): Event
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setType(string $type): Event
+    {
+        EventType::assertValidChoice($type);
+        $this->type = EventType::getEventTypeGitHubArchives()[$type];
+        return $this;
+    }
+
+    public function setCount(int $count): Event
+    {
+        $this->count = $count;
+        return $this;
+    }
+
+    public function setActor(Actor $actor): Event
+    {
+        $this->actor = $actor;
+        return $this;
+    }
+
+    public function setRepo(Repo $repo): Event
+    {
+        $this->repo = $repo;
+        return $this;
+    }
+
+    public function setPayload(array $payload): Event
+    {
+        $this->payload = $payload;
+        if (EventType::COMMIT === $this->type) {
+            $count = $payload['size'] ?? 1;
+            $this->setCount($count);
+        }
+        return $this;
+    }
+
+    public function setCreateAt(\DateTimeImmutable $createAt): Event
+    {
+        $this->createAt = $createAt;
+        return $this;
+    }
+
+    public function setComment(?string $comment): Event
+    {
+        $this->comment = $comment;
+        return $this;
     }
 }

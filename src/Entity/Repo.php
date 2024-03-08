@@ -26,9 +26,9 @@ class Repo
 
     public function __construct(int $id, string $name, string $url)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->url = $url;
+        $this->setId($id);
+        $this->setName($name);
+        $this->setUrl($url);
     }
 
     public function getId(): int
@@ -44,5 +44,23 @@ class Repo
     public function getUrl(): string
     {
         return $this->url;
+    }
+
+    public function setId(int $id): Repo
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setName(string $name): Repo
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function setUrl(string $url): Repo
+    {
+        $this->url = $url;
+        return $this;
     }
 }
