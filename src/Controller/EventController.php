@@ -36,7 +36,7 @@ class EventController extends AbstractController
 
         $errors = $validator->validate($eventInput);
 
-        if (\count($errors) > 0) {
+        if (count($errors) > 0) {
             return new JsonResponse(
                 ['message' => $errors->get(0)->getMessage()],
                 Response::HTTP_BAD_REQUEST
