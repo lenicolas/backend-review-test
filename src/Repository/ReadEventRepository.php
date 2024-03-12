@@ -21,7 +21,7 @@ class ReadEventRepository implements ReadEventRepositoryInterface
 
         $queryBuilder->select('count(e.id)')
             ->from(Event::class, 'e')
-            ->where('e.createAt LIKE :date')
+            ->where('e.createAt = :date')
             ->andWhere('e.payload LIKE :keyword')
             ->setParameter('date', $searchInput->date->format('Y-m-d'))
             ->setParameter('keyword', '%' . $searchInput->keyword . '%');
@@ -34,7 +34,7 @@ class ReadEventRepository implements ReadEventRepositoryInterface
 
         $queryBuilder->select('e.type, sum(e.count) as count')
             ->from(Event::class, 'e')
-            ->where('e.createAt LIKE :date')
+            ->where('e.createAt = :date')
             ->andWhere('e.payload LIKE :keyword')
             ->groupBy('e.type')
             ->setParameter('date', $searchInput->date->format('Y-m-d'))
@@ -54,7 +54,7 @@ class ReadEventRepository implements ReadEventRepositoryInterface
             SELECT extract(hour from create_at) as hour, type, sum(count) as count
             FROM event
             WHERE date(create_at) = :date
-            AND payload::text like :keyword
+            AND payload::text LIKE :keyword
             GROUP BY TYPE, EXTRACT(hour from create_at)
 SQL;
 
@@ -79,7 +79,7 @@ SQL;
 
         $queryBuilder->select('e.type, e.repo')
             ->from(Event::class, 'e')
-            ->where('e.createAt LIKE :date')
+            ->where('e.createAt = :date')
             ->andWhere('e.payload LIKE :keyword')
             ->setParameter('date', $searchInput->date->format('Y-m-d'))
             ->setParameter('keyword', '%' . $searchInput->keyword . '%');
