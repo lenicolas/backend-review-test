@@ -5,102 +5,98 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Webmozart\Assert\Assert;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="`event`",
- *    indexes={@ORM\Index(name="IDX_EVENT_TYPE", columns={"type"})}
- * )
- */
+#[ORM\Table(name: 'event')]
+#[ORM\Index(
+    columns: ['type'],
+    name: 'IDX_EVENT_TYPE'
+)]
+#[ORM\Entity]
 class Event
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="bigint")
-     * @ORM\GeneratedValue(strategy="NONE")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'bigint')]
+    #[ORM\GeneratedValue('NONE')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="EventType", nullable=false)
-     */
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank]
     private string $type;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer')]
     private int $count = 1;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Actor", cascade={"persist"})
-     * @ORM\JoinColumn(name="actor_id", referencedColumnName="id")
-     */
+    #[ORM\ManyToOne(targetEntity: Actor::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'actor_id', referencedColumnName: 'id')]
     private Actor $actor;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Repo", cascade={"persist"})
-     * @ORM\JoinColumn(name="repo_id", referencedColumnName="id")
-     */
+    #[ORM\ManyToOne(targetEntity: Repo::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'repo_id', referencedColumnName: 'id')]
     private Repo $repo;
 
     /**
-     * @ORM\Column(type="json", nullable=false, options={"jsonb": true})
+     * @var \Iterator[]
      */
+    #[ORM\Column(type: 'json', nullable: false, options: ['jsonb' => true])]
     private array $payload;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: false)]
+    #[Assert\DateTime]
     private \DateTimeImmutable $createAt;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: false)]
+    #[Assert\NotBlank]
     private ?string $comment;
 
-    public function __construct(int $id, string $type, Actor $actor, Repo $repo, array $payload, \DateTimeImmutable $createAt, ?string $comment)
+    /**
+     * @param array<\Iterator> $payload
+     */
+    public function __construct(int $id, string $type, Actor $actor, Repo $repo, array $payload, \DateTimeImmutable $createdAt, ?string $comment)
     {
-        $this->id = $id;
-        EventType::assertValidChoice($type);
-        $this->type = $type;
-        $this->actor = $actor;
-        $this->repo = $repo;
-        $this->payload = $payload;
-        $this->createAt = $createAt;
-        $this->comment = $comment;
-
-        if ($type === EventType::COMMIT) {
-            $this->count = $payload['size'] ?? 1;
-        }
+        $this->setId($id);
+        $this->setType($type);
+        $this->setActor($actor);
+        $this->setRepo($repo);
+        $this->setPayload($payload);
+        $this->setCreateAt($createdAt);
+        $this->setComment($comment);
     }
 
-    public function id(): int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function type(): string
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function actor(): Actor
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function getActor(): Actor
     {
         return $this->actor;
     }
 
-    public function repo(): Repo
+    public function getRepo(): Repo
     {
         return $this->repo;
     }
 
-    public function payload(): array
+    /**
+     * @return \Iterator[]
+     */
+    public function getPayload(): array
     {
         return $this->payload;
     }
 
-    public function createAt(): \DateTimeImmutable
+    public function getCreateAt(): \DateTimeImmutable
     {
         return $this->createAt;
     }
@@ -108,5 +104,58 @@ class Event
     public function getComment(): ?string
     {
         return $this->comment;
+    }
+
+    public function setId(int $id): Event
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setType(string $type): Event
+    {
+        EventType::assertValidChoice($type);
+        $this->type = EventType::getEventTypeGitHubArchives()[$type];
+        return $this;
+    }
+
+    public function setCount(int $count): Event
+    {
+        $this->count = $count;
+        return $this;
+    }
+
+    public function setActor(Actor $actor): Event
+    {
+        $this->actor = $actor;
+        return $this;
+    }
+
+    public function setRepo(Repo $repo): Event
+    {
+        $this->repo = $repo;
+        return $this;
+    }
+
+    public function setPayload(array $payload): Event
+    {
+        $this->payload = $payload;
+        if (EventType::COMMIT === $this->type) {
+            $count = $payload['size'] ?? 1;
+            $this->setCount($count);
+        }
+        return $this;
+    }
+
+    public function setCreateAt(\DateTimeImmutable $createAt): Event
+    {
+        $this->createAt = $createAt;
+        return $this;
+    }
+
+    public function setComment(?string $comment): Event
+    {
+        $this->comment = $comment;
+        return $this;
     }
 }
